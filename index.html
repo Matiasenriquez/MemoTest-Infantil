@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memotest Infantil</title>
+    <!-- Tailwind CSS cargado por CDN para habilitar la configuración custom en el mismo archivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-gray': '#D3D3D3',
+                        'brand-peach': '#EED9C4',
+                        'brand-blue': '#B9D3E0',
+                        'brand-purple': '#D9C4EE',
+                        'brand-green': '#C4EED9',
+                    },
+                    fontFamily: {
+                        nunito: ['Nunito', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
+                        'float': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fuente Nunito para un aspecto redondeado y amigable -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            /* Patrón de fondo sutil (lunares blancos) para darle un toque infantil manteniendo el minimalismo */
+            background-color: #D3D3D3;
+            background-image: radial-gradient(white 15%, transparent 16%), radial-gradient(white 15%, transparent 16%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            background-attachment: fixed;
+        }
+
+        /* Efecto Glassmorphism para los contenedores */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* Estilos extra para las animaciones 3D de las cartas */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Área interactiva de subida de archivos animada */
+        .file-drop-area {
+            border: 3px dashed #B9D3E0;
+            transition: all 0.3s ease;
+        }
+
+        .file-drop-area:hover,
+        .file-drop-area:focus-within {
+            border-color: #D9C4EE;
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: scale(1.02);
+        }
+
+        /* Animación suave por CSS para que los paneles aparezcan fluidos sin interferir con JS */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        section:not(.hidden) {
+            animation: fadeIn 0.4s ease-out;
+        }
+    </style>
+</head>
+
+<body class="font-nunito flex items-center justify-center min-h-screen p-4 text-gray-800">
+    <div id="app" class="w-full max-w-4xl space-y-10 flex flex-col items-center">
+
+        <!-- Header Principal -->
+        <header
+            class="text-center px-8 py-6 bg-brand-peach rounded-3xl shadow-soft w-full max-w-2xl transform hover:-translate-y-1 transition-all duration-300 border-4 border-white">
+            <h1 class="text-4xl md:text-5xl font-black text-gray-800 tracking-tight drop-shadow-sm">
+                Memotest <span class="text-white drop-shadow-md">Infantil</span>
+            </h1>
+            <p class="mt-2 text-gray-700 font-bold text-lg opacity-90">¡Entrena tu memoria jugando!</p>
+        </header>
+
+        <!-- Selección de Dificultad -->
+        <section id="difficulty" class="flex flex-wrap justify-center gap-5 w-full max-w-3xl">
+            <button onclick="setDifficulty(4, 4)"
+                class="group flex-1 min-w-[150px] px-2 py-5 bg-brand-blue rounded-3xl shadow-soft hover:shadow-float transform hover:-translate-y-2 active:translate-y-0 transition-all duration-300 border-4 border-white text-center">
+                <span
+                    class="block text-2xl font-black text-gray-800 group-hover:text-white transition-colors">Fácil</span>
+                <span class="block text-sm font-bold text-gray-600 mt-1">(4x4)</span>
+            </button>
+            <button onclick="setDifficulty(4, 5)"
+                class="group flex-1 min-w-[150px] px-2 py-5 bg-brand-purple rounded-3xl shadow-soft hover:shadow-float transform hover:-translate-y-2 active:translate-y-0 transition-all duration-300 border-4 border-white text-center">
+                <span
+                    class="block text-2xl font-black text-gray-800 group-hover:text-white transition-colors">Medio</span>
+                <span class="block text-sm font-bold text-gray-600 mt-1">(4x5)</span>
+            </button>
+            <button onclick="setDifficulty(6, 6)"
+                class="group flex-1 min-w-[150px] px-2 py-5 bg-brand-green rounded-3xl shadow-soft hover:shadow-float transform hover:-translate-y-2 active:translate-y-0 transition-all duration-300 border-4 border-white text-center">
+                <span
+                    class="block text-2xl font-black text-gray-800 group-hover:text-white transition-colors">Difícil</span>
+                <span class="block text-sm font-bold text-gray-600 mt-1">(6x6)</span>
+            </button>
+        </section>
+
+        <!-- Subida de Imágenes -->
+        <section id="imageUpload"
+            class="hidden text-center glass-card p-8 rounded-3xl shadow-float w-full max-w-2xl flex flex-col items-center">
+
+            <div class="file-drop-area relative w-full p-10 rounded-2xl bg-white/50 mb-6 cursor-pointer">
+                <div class="flex flex-col items-center pointer-events-none">
+                    <svg class="w-16 h-16 text-brand-blue mb-4 drop-shadow-sm" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                    <p class="text-2xl font-black text-gray-800">Toca para subir tus imágenes</p>
+                    <p class="text-md font-bold text-gray-500 mt-2">Formatos: JPG, PNG, WEBP</p>
+                </div>
+                <!-- El input original -->
+                <input type="file" multiple accept=".jpg,.png,.jpeg,.webp"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="imageInput">
+            </div>
+
+            <div class="w-full flex flex-col md:flex-row items-center justify-between gap-4 px-2">
+                <p id="imageCount" class="text-lg font-bold text-gray-600 bg-white/70 px-5 py-2 rounded-xl">Selecciona
+                    la dificultad primero</p>
+                <!-- El botón original -->
+                <button onclick="startGame()" id="startButton"
+                    class="w-full md:w-auto px-8 py-4 bg-brand-purple rounded-2xl shadow-soft font-black text-xl text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-1 hover:shadow-float active:translate-y-0 transition-all duration-300 border-4 border-white"
+                    disabled>
+                    ¡A jugar! 🚀
+                </button>
+            </div>
+        </section>
+
+        <!-- Tablero de Juego (Se restauró la jerarquía original exacta donde #board es hijo directo de #gameBoard) -->
+        <section id="gameBoard"
+            class="hidden w-full max-w-4xl glass-card p-4 sm:p-6 rounded-3xl shadow-float border-4 border-white">
+            <div id="board" class="grid gap-3 sm:gap-4 w-full"></div>
+        </section>
+
+        <!-- Estadísticas -->
+        <section id="score"
+            class="hidden flex justify-center items-center gap-8 text-xl font-black glass-card px-8 py-4 rounded-3xl shadow-soft border-4 border-white text-gray-800">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🎯</span>
+                <p>Intentos: <span id="intentosTexto" class="text-brand-blue drop-shadow-sm text-2xl">0</span></p>
+            </div>
+            <div class="w-1.5 h-8 bg-gray-300 rounded-full opacity-50"></div>
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🏆</span>
+                <p>Récord: <span id="recordTexto" class="text-brand-peach drop-shadow-sm text-2xl">0</span></p>
+            </div>
+        </section>
+
+        <!-- Controles Inferiores -->
+        <section id="controls" class="hidden flex flex-wrap justify-center gap-4 w-full">
+            <button onclick="restartGame()"
+                class="flex items-center gap-2 px-6 py-3 bg-brand-blue font-black text-lg text-gray-800 rounded-2xl shadow-soft hover:-translate-y-1 hover:shadow-float active:translate-y-0 transition-all duration-300 border-4 border-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                    </path>
+                </svg>
+                Reiniciar Tablero
+            </button>
+            <button onclick="resetApp()"
+                class="flex items-center gap-2 px-6 py-3 bg-brand-purple font-black text-lg text-gray-800 rounded-2xl shadow-soft hover:-translate-y-1 hover:shadow-float active:translate-y-0 transition-all duration-300 border-4 border-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                    </path>
+                </svg>
+                Menú Principal
+            </button>
+        </section>
+
+        <!-- Pantalla de Victoria -->
+        <section id="winScreen"
+            class="hidden flex-col items-center justify-center text-center p-10 bg-brand-green rounded-[3rem] shadow-float w-full max-w-2xl border-8 border-white">
+            <div class="text-7xl mb-4 animate-bounce">🎉</div>
+            <h1 class="text-5xl md:text-6xl font-black text-gray-800 tracking-tight drop-shadow-sm mb-4">¡Felicidades!
+            </h1>
+            <p class="text-2xl text-gray-700 font-bold mb-8">Completaste el tablero en <br /> <span id="intentosFinales"
+                    class="text-5xl text-brand-purple drop-shadow-md"></span> intentos.</p>
+            <button onclick="resetApp()"
+                class="px-10 py-5 bg-white font-black text-2xl text-gray-800 rounded-3xl shadow-soft hover:-translate-y-2 hover:shadow-float active:translate-y-0 transition-all duration-300 border-4 border-brand-purple">
+                Jugar de nuevo 🕹️
+            </button>
+        </section>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
